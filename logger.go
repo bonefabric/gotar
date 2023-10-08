@@ -2,6 +2,6 @@ package main
 
 import "log"
 
-func configureLogger() {
+func setupLogger() {
 	log.SetFlags(0)
 }
