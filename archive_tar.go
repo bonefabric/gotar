@@ -16,10 +16,10 @@ type tarWalker struct {
 	skipFor []string
 	writer  *tar.Writer
 	warns   chan<- error
-	written chan<- *writeInfo
+	written chan<- *archiveInfo
 }
 
-type writeInfo struct {
+type archiveInfo struct {
 	filename string
 	size     int64
 }
@@ -51,7 +51,7 @@ func (walker *tarWalker) walkerFunc(path string, _ fs.DirEntry, err error) error
 
 	written, err := walker.fileToTar(src, link, walker.writer)
 
-	walker.written <- &writeInfo{
+	walker.written <- &archiveInfo{
 		filename: path,
 		size:     written,
 	}
@@ -84,7 +84,7 @@ func (walker *tarWalker) fileToTar(file *os.File, link string, writer *tar.Write
 	return io.Copy(writer, file)
 }
 
-func makeTarArchive(tarFilePath string, sources []string, warns chan<- error, written chan<- *writeInfo) error {
+func makeTarArchive(tarFilePath string, sources []string, warns chan<- error, written chan<- *archiveInfo) error {
 	absTarPath, err := filepath.Abs(tarFilePath)
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to find absolute path to %s, error: %s", tarFilePath, err))
@@ -126,7 +126,7 @@ func makeTarArchive(tarFilePath string, sources []string, warns chan<- error, wr
 }
 
 // pathToTar writes path files to tar writer
-func pathToTar(sourcePath string, writer *tar.Writer, skip []string, warns chan<- error, written chan<- *writeInfo) error {
+func pathToTar(sourcePath string, writer *tar.Writer, skip []string, warns chan<- error, written chan<- *archiveInfo) error {
 	absRootPath, err := filepath.Abs(sourcePath)
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to find absolute path to file %s, error: %s", sourcePath, err))

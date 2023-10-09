@@ -7,15 +7,27 @@ import (
 
 func main() {
 	setupLogger()
+	validateFlags()
 
 	if createFlag {
-		makeArchive(flag.Args(), verboseFlag)
+		makeArchive(fileFlag, flag.Args(), verboseFlag)
+		return
+	}
+
+	if extractFlag {
+		extractArchive(fileFlag, flag.Args()[0], verboseFlag)
 	}
 }
 
-func makeArchive(sources []string, verbose bool) {
-	if err := makeTarArchive(fileFlag, sources, warnChan(), verboseChan(verbose)); err != nil {
-		log.Fatalf("failed to create tar archive: %s\n", err)
+func makeArchive(filepath string, sources []string, verbose bool) {
+	if err := makeTarArchive(filepath, sources, warnChan(), verboseChan(verbose)); err != nil {
+		log.Fatalf("failed to create archive: %s\n", err)
+	}
+}
+
+func extractArchive(archivePath, extractPath string, verbose bool) {
+	if err := extractTar(archivePath, extractPath, warnChan(), verboseChan(verbose)); err != nil {
+		log.Fatalf("failed to extract archive: %s\n", err)
 	}
 }
 
@@ -30,8 +42,8 @@ func warnChan() chan<- error {
 	return warns
 }
 
-func verboseChan(show bool) chan<- *writeInfo {
-	writes := make(chan *writeInfo, 1)
+func verboseChan(show bool) chan<- *archiveInfo {
+	writes := make(chan *archiveInfo, 1)
 
 	go func() {
 		for write := range writes {
