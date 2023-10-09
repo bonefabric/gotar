@@ -1,3 +1,3 @@
-module bonefabric/gotar
+module github.com/bonefabric/gotar
 
 go 1.21
