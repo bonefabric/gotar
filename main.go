@@ -1,22 +1,14 @@
 package main
 
 import (
-	"flag"
 	"log"
 )
 
 func main() {
 	setupLogger()
-	validateFlags()
 
-	if createFlag {
-		makeArchive(fileFlag, flag.Args(), verboseFlag)
-		return
-	}
-
-	if extractFlag {
-		extractArchive(fileFlag, flag.Args()[0], verboseFlag)
-	}
+	action := findAction()
+	action()
 }
 
 func makeArchive(filepath string, sources []string, verbose bool) {
